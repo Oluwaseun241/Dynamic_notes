@@ -15,9 +15,15 @@ def get_db():
     finally:
         db.close()
 
-# @app.get("/")
-# def notes():
-#     return 'all'
+@app.get("/blog")
+def show_all(db: Session = Depends(get_db)):
+    notes = db.query(models.Note).all()
+    return notes
+
+@app.get("/blog{id}")
+def note(id, db: Session = Depends(get_db)):
+    note = db.query(models.Note).filter(models.Note.id == id).first()
+    return note
 
 @app.post("/blog")
 def create_notes(request: schemas.Note, db: Session = Depends(get_db)):
