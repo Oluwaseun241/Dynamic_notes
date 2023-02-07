@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, status, HTTPException
+from typing import List
 from . import schemas, models
 from .database import SessionLocal, engine
 from sqlalchemy.orm import Session
@@ -16,13 +17,13 @@ def get_db():
         db.close()
 
 
-@app.get("/note", status_code=status.HTTP_200_OK)
+@app.get("/note", status_code=status.HTTP_200_OK, response_model=List[schemas.ShowNote])
 def show_all(db: Session = Depends(get_db)):
     notes = db.query(models.Note).all()
     return notes
 
 
-@app.get("/note/{id}", status_code=status.HTTP_200_OK)
+@app.get("/note/{id}", status_code=status.HTTP_200_OK, response_model=schemas.ShowNote)
 def note(id, db: Session = Depends(get_db)):
     note = db.query(models.Note).filter(models.Note.id == id).first()
     if not note:
