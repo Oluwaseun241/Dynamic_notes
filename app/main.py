@@ -68,7 +68,7 @@ def update_note(id, request: schemas.Note, db: Session = Depends(get_db)):
 
 @app.post("/user")
 def create_user(request : schemas.User, db: Session = Depends(get_db)):
-    new_user = models.User(username=request.username,email=request.email,password=request.password)
+    new_user = models.User(username=request.username, email=request.email, password=request.password)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
