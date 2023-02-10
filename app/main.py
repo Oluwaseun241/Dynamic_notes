@@ -4,13 +4,13 @@ from . import schemas, models
 from .database import SessionLocal, engine
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from passlib.context import CryptContext
 from .hash import Hash
 
 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
 
 def get_db():
     db = SessionLocal()
@@ -30,7 +30,8 @@ def show_all(db: Session = Depends(get_db)):
 def note(id, db: Session = Depends(get_db)):
     note = db.query(models.Note).filter(models.Note.id == id).first()
     if not note:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail = f"Note with id {id} is not available")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"Note with id {id} is not available")
     return note
 
 
@@ -45,22 +46,24 @@ def create_notes(request: schemas.Note, db: Session = Depends(get_db)):
 
 @app.delete("/note/{id}", status_code=status.HTTP_202_ACCEPTED)
 def delete_note(id, db: Session = Depends(get_db)):
-    note = db.query(models.Note).filter(models.Note.id == id).delete(synchronize_session=False)
+    note = db.query(models.Note).filter(models.Note.id ==
+                                        id).delete(synchronize_session=False)
     db.commit()
 
-
     if not note:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail = f"Note with id {id} is not available")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"Note with id {id} is not available")
 
     return {"detail": f"Note with id {id} is sucessfully deleted"}
 
-   
+
 @app.put("/note/{id}", status_code=status.HTTP_202_ACCEPTED)
 def update_note(id, request: schemas.Note, db: Session = Depends(get_db)):
     note = db.query(models.Note).filter(models.Note.id == id).first()
     if not note:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail = f"Note with id {id} is not available")
-    
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"Note with id {id} is not available")
+
     note.title = request.title
     note.body = request.body
     db.commit()
@@ -68,11 +71,13 @@ def update_note(id, request: schemas.Note, db: Session = Depends(get_db)):
 
 
 @app.post("/user", status_code=status.HTTP_201_CREATED, response_model=schemas.ShowUser)
-def create_user(request : schemas.User):
-    db = SessionLocal()
+def create_user(request: schemas.User, db: Session = Depends(get_db)):
     try:
+        if not request.username or not request.email or not request.password:
+            return {"message": "username, email and password are required"}
         hashed_password = Hash.get_password_hash(request.password)
-        new_user = models.User(username=request.username, email=request.email, password=hashed_password)
+        new_user = models.User(username=request.username,
+                               email=request.email, password=hashed_password)
         try:
             with db.begin_nested():
                 db.add(new_user)
@@ -80,20 +85,20 @@ def create_user(request : schemas.User):
                 db.refresh(new_user)
         except IntegrityError as e:
             db.rollback()
-            return {"message": f"Email {email} already taken"}
+            return {"message": "Email already taken"}
         except Exception as e:
             db.rollback()
             raise e
-        
+
         return new_user
     finally:
         db.close()
-
 
 
 @app.get("/user/{id}", status_code=status.HTTP_200_OK, response_model=schemas.ShowUser)
 def user(id, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.id == id).first()
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail = f"User with id {id} is not available")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"User with id {id} is not available")
     return user
