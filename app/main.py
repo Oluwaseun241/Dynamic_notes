@@ -68,7 +68,7 @@ def update_note(id, request: schemas.Note, db: Session = Depends(get_db)):
     return {"detail": f"Note with id {id} is sucessfully updated"}
 
 
-@app.post("/user", response_model=schemas.ShowUser)
+@app.post("/user", status_code=status.HTTP_201_CREATED, response_model=schemas.ShowUser)
 def create_user(request : schemas.User, db: Session = Depends(get_db)):
     hashed_password = Hash.get_password_hash(request.password)
     new_user = models.User(username=request.username, email=request.email, password=hashed_password)
@@ -77,5 +77,9 @@ def create_user(request : schemas.User, db: Session = Depends(get_db)):
     db.refresh(new_user)
     return new_user
 
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+@app.get("/user/{id}", status_code=status.HTTP_200_OK, response_model=schemas.ShowUser)
+def user(id, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail = f"User with id {id} is not available")
+    return user
