@@ -3,6 +3,7 @@ from typing import List
 from . import schemas, models
 from .database import SessionLocal, engine
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from passlib.context import CryptContext
 from .hash import Hash
 
@@ -30,8 +31,6 @@ def note(id, db: Session = Depends(get_db)):
     note = db.query(models.Note).filter(models.Note.id == id).first()
     if not note:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail = f"Note with id {id} is not available")
-
-
     return note
 
 
@@ -72,9 +71,20 @@ def update_note(id, request: schemas.Note, db: Session = Depends(get_db)):
 def create_user(request : schemas.User, db: Session = Depends(get_db)):
     hashed_password = Hash.get_password_hash(request.password)
     new_user = models.User(username=request.username, email=request.email, password=hashed_password)
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+    try:
+        db.begin_nested()
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+    except IntegrityError as e:
+        db.rollback()
+        return {"message": f"Email {email} already taken"}
+    except Exception as e:
+        db.rollback()
+        raise e
+    finally:
+        db.close()
+        
     return new_user
 
 @app.get("/user/{id}", status_code=status.HTTP_200_OK, response_model=schemas.ShowUser)
