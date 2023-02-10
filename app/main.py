@@ -68,7 +68,7 @@ def update_note(id, request: schemas.Note, db: Session = Depends(get_db)):
     return {"detail": f"Note with id {id} is sucessfully updated"}
 
 
-@app.post("/user")
+@app.post("/user", response_model=schemas.ShowUser)
 def create_user(request : schemas.User, db: Session = Depends(get_db)):
     hashed_password = Hash.get_password_hash(request.password)
     new_user = models.User(username=request.username, email=request.email, password=hashed_password)
