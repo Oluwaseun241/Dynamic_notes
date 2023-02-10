@@ -1,9 +1,10 @@
 from fastapi import FastAPI, Depends, status, HTTPException
 from typing import List
-from . import schemas, models, hash
+from . import schemas, models
 from .database import SessionLocal, engine
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
+from .hash import Hash
 
 
 models.Base.metadata.create_all(bind=engine)
@@ -69,7 +70,7 @@ def update_note(id, request: schemas.Note, db: Session = Depends(get_db)):
 
 @app.post("/user")
 def create_user(request : schemas.User, db: Session = Depends(get_db)):
-    hashed_password = hash.Hash.get_password_hash(request.password)
+    hashed_password = Hash.get_password_hash(request.password)
     new_user = models.User(username=request.username, email=request.email, password=hashed_password)
     db.add(new_user)
     db.commit()
