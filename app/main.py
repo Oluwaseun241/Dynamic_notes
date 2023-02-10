@@ -68,23 +68,28 @@ def update_note(id, request: schemas.Note, db: Session = Depends(get_db)):
 
 
 @app.post("/user", status_code=status.HTTP_201_CREATED, response_model=schemas.ShowUser)
-def create_user(request : schemas.User, db: Session = Depends(get_db)):
-    hashed_password = Hash.get_password_hash(request.password)
-    new_user = models.User(username=request.username, email=request.email, password=hashed_password)
-    try: 
-        db.add(new_user)
-        db.commit()
-        db.refresh(new_user)
-    except IntegrityError as e:
-        db.rollback()
-        return {"message": f"Email {email} already taken"}
-    except Exception as e:
-        db.rollback()
-        raise e
+def create_user(request : schemas.User):
+    db = SessionLocal()
+    try:
+        hashed_password = Hash.get_password_hash(request.password)
+        new_user = models.User(username=request.username, email=request.email, password=hashed_password)
+        try:
+            with db.begin_nested():
+                db.add(new_user)
+                db.commit()
+                db.refresh(new_user)
+        except IntegrityError as e:
+            db.rollback()
+            return {"message": f"Email {email} already taken"}
+        except Exception as e:
+            db.rollback()
+            raise e
+        
+        return new_user
     finally:
         db.close()
-        
-    return new_user
+
+
 
 @app.get("/user/{id}", status_code=status.HTTP_200_OK, response_model=schemas.ShowUser)
 def user(id, db: Session = Depends(get_db)):
