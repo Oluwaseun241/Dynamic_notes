@@ -20,13 +20,13 @@ def get_db():
         db.close()
 
 
-@app.get("/note", status_code=status.HTTP_200_OK, response_model=List[schemas.ShowNote])
+@app.get("/note", status_code=status.HTTP_200_OK, response_model=List[schemas.ShowNote], tags=["Notes"])
 def show_all(db: Session = Depends(get_db)):
     notes = db.query(models.Note).all()
     return notes
 
 
-@app.get("/note/{id}", status_code=status.HTTP_200_OK, response_model=schemas.ShowNote)
+@app.get("/note/{id}", status_code=status.HTTP_200_OK, response_model=schemas.ShowNote, tags=["Notes"])
 def note(id, db: Session = Depends(get_db)):
     note = db.query(models.Note).filter(models.Note.id == id).first()
     if not note:
@@ -35,7 +35,7 @@ def note(id, db: Session = Depends(get_db)):
     return note
 
 
-@app.post("/note", status_code=status.HTTP_201_CREATED)
+@app.post("/note", status_code=status.HTTP_201_CREATED, tags=["Notes"])
 def create_notes(request: schemas.Note, db: Session = Depends(get_db)):
     new_note = models.Note(title=request.title, body=request.body)
     db.add(new_note)
@@ -44,7 +44,7 @@ def create_notes(request: schemas.Note, db: Session = Depends(get_db)):
     return new_note
 
 
-@app.delete("/note/{id}", status_code=status.HTTP_202_ACCEPTED)
+@app.delete("/note/{id}", status_code=status.HTTP_202_ACCEPTED, tags=["Notes"])
 def delete_note(id, db: Session = Depends(get_db)):
     note = db.query(models.Note).filter(models.Note.id ==
                                         id).delete(synchronize_session=False)
@@ -57,7 +57,7 @@ def delete_note(id, db: Session = Depends(get_db)):
     return {"detail": f"Note with id {id} is sucessfully deleted"}
 
 
-@app.put("/note/{id}", status_code=status.HTTP_202_ACCEPTED)
+@app.put("/note/{id}", status_code=status.HTTP_202_ACCEPTED, tags=["Notes"])
 def update_note(id, request: schemas.Note, db: Session = Depends(get_db)):
     note = db.query(models.Note).filter(models.Note.id == id).first()
     if not note:
@@ -70,7 +70,7 @@ def update_note(id, request: schemas.Note, db: Session = Depends(get_db)):
     return {"detail": f"Note with id {id} is sucessfully updated"}
 
 
-@app.post("/user", status_code=status.HTTP_201_CREATED, response_model=schemas.ShowUser)
+@app.post("/user", status_code=status.HTTP_201_CREATED, response_model=schemas.ShowUser, tags=["Users"])
 def create_user(request: schemas.User, db: Session = Depends(get_db)):
     user_with_username = db.query(models.User).filter(models.User.username == request.username).first()
     user_with_email = db.query(models.User).filter(models.User.email == request.email).first()
@@ -87,7 +87,7 @@ def create_user(request: schemas.User, db: Session = Depends(get_db)):
     return new_user
 
 
-@app.get("/user/{id}", status_code=status.HTTP_200_OK, response_model=schemas.ShowUser)
+@app.get("/user/{id}", status_code=status.HTTP_200_OK, response_model=schemas.ShowUser, tags=["Users"])
 def user(id, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.id == id).first()
     if not user:
