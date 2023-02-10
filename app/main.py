@@ -71,8 +71,7 @@ def update_note(id, request: schemas.Note, db: Session = Depends(get_db)):
 def create_user(request : schemas.User, db: Session = Depends(get_db)):
     hashed_password = Hash.get_password_hash(request.password)
     new_user = models.User(username=request.username, email=request.email, password=hashed_password)
-    try:
-        db.begin_nested()
+    try: 
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
