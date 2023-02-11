@@ -4,7 +4,10 @@ class Note(BaseModel):
     title: str
     body: str
 
-class ShowNote(Note):
+class ShowNote(BaseModel):
+    title: str
+    body: str
+    
     class Config():
         orm_mode = True
 
