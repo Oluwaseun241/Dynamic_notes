@@ -46,7 +46,7 @@ def note(id, db: Session = Depends(get_db)):
 
 @app.post("/note", status_code=status.HTTP_201_CREATED, tags=["Notes"])
 def create_notes(request: schemas.Note, db: Session = Depends(get_db)):
-    new_note = models.Note(title=request.title, body=request.body, user_id=1)
+    new_note = models.Note(title=request.title, body=request.body)
     db.add(new_note)
     db.commit()
     db.refresh(new_note)
