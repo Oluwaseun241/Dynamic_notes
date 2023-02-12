@@ -10,14 +10,14 @@ from .hash import Hash
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="Dynamic Notes",
-    description='A simple User CRUD API built with FastAPI and SQLAlchemy',
-    version="0.0.9",
-    contact={
-        "name": "Oluwaseun",
-        "url": "https://github.com/Oluwaseun241",
-        "email": "tanimolaoluwaseun70@gmail.com",
-    },
+    # title="Dynamic Notes",
+    # description='A simple User CRUD API built with FastAPI and SQLAlchemy',
+    # version="0.0.9",
+    # contact={
+    #     "name": "Oluwaseun",
+    #     "url": "https://github.com/Oluwaseun241",
+    #     "email": "tanimolaoluwaseun70@gmail.com",
+    # },
 )
 
 
@@ -46,7 +46,7 @@ def note(id, db: Session = Depends(get_db)):
 
 @app.post("/note", status_code=status.HTTP_201_CREATED, tags=["Notes"])
 def create_notes(request: schemas.Note, db: Session = Depends(get_db)):
-    new_note = models.Note(title=request.title, body=request.body)
+    new_note = models.Note(title=request.title, body=request.body, user_id=1)
     db.add(new_note)
     db.commit()
     db.refresh(new_note)
