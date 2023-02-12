@@ -1,10 +1,11 @@
 from typing import List
 from pydantic import BaseModel
 
-class Note(BaseModel):
+class NoteBase(BaseModel):
     title: str
     body: str
 
+class Note(NoteBase):
     class Config():
         orm_mode = True
 
