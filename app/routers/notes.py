@@ -4,12 +4,13 @@ from sqlalchemy.orm import Session
 from .. import schemas, models, database
 
 router = APIRouter(
+    prefix="/note",
     tags=['Notes']
 )
 
 get_db = database.get_db
 
-@router.post("/note", status_code=status.HTTP_201_CREATED)
+@router.post("/", status_code=status.HTTP_201_CREATED)
 def create_notes(request: schemas.Note, db: Session = Depends(get_db)):
     new_note = models.Note(title=request.title, body=request.body)
     db.add(new_note)
@@ -17,13 +18,13 @@ def create_notes(request: schemas.Note, db: Session = Depends(get_db)):
     db.refresh(new_note)
     return new_note
 
-@router.get("/note", status_code=status.HTTP_200_OK, response_model=List[schemas.ShowNote])
+@router.get("/", status_code=status.HTTP_200_OK, response_model=List[schemas.ShowNote])
 def show_all(db: Session = Depends(get_db)):
     notes = db.query(models.Note).all()
     return notes
 
 
-@router.get("/note/{id}", status_code=status.HTTP_200_OK, response_model=schemas.ShowNote)
+@router.get("/{id}", status_code=status.HTTP_200_OK, response_model=schemas.ShowNote)
 def note(id, db: Session = Depends(get_db)):
     note = db.query(models.Note).filter(models.Note.id == id).first()
     if not note:
@@ -32,7 +33,7 @@ def note(id, db: Session = Depends(get_db)):
     return note
 
 
-@router.delete("/note/{id}", status_code=status.HTTP_202_ACCEPTED)
+@router.delete("/{id}", status_code=status.HTTP_202_ACCEPTED)
 def delete_note(id, db: Session = Depends(get_db)):
     note = db.query(models.Note).filter(models.Note.id ==
                                         id).delete(synchronize_session=False)
@@ -45,7 +46,7 @@ def delete_note(id, db: Session = Depends(get_db)):
     return {"detail": f"Note with id {id} is sucessfully deleted"}
 
 
-@router.put("/note/{id}", status_code=status.HTTP_202_ACCEPTED)
+@router.put("/{id}", status_code=status.HTTP_202_ACCEPTED)
 def update_note(id, request: schemas.Note, db: Session = Depends(get_db)):
     note = db.query(models.Note).filter(models.Note.id == id).first()
     if not note:
