@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, status, Depends, HTTPException
 from sqlalchemy.orm import Session
-from .. import schemas, models, database
+from .. import schemas, models, database, Oauth2
 
 router = APIRouter(
     prefix="/note",
@@ -19,7 +19,7 @@ def create_notes(request: schemas.Note, db: Session = Depends(get_db)):
     return new_note
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=List[schemas.ShowNote])
-def show_all(db: Session = Depends(get_db)):
+def show_all(db: Session = Depends(get_db), get_current_user: schemas.User = Depends(Oauth2.get_current_user)):
     notes = db.query(models.Note).all()
     return notes
 
