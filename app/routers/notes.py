@@ -10,6 +10,7 @@ router = APIRouter(
 
 get_db = database.get_db
 
+
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create_notes(request: schemas.Note, db: Session = Depends(get_db)):
     new_note = models.Note(title=request.title, body=request.body)
@@ -18,14 +19,15 @@ def create_notes(request: schemas.Note, db: Session = Depends(get_db)):
     db.refresh(new_note)
     return new_note
 
+
 @router.get("/", status_code=status.HTTP_200_OK, response_model=List[schemas.ShowNote])
-def show_all(db: Session = Depends(get_db), get_current_user: schemas.User = Depends(Oauth2.get_current_user)):
+def show_all(db: Session = Depends(get_db), current_user: schemas.User = Depends(Oauth2.get_current_user)):
     notes = db.query(models.Note).all()
     return notes
 
 
 @router.get("/{id}", status_code=status.HTTP_200_OK, response_model=schemas.ShowNote)
-def note(id, db: Session = Depends(get_db)):
+def note(id, db: Session = Depends(get_db), current_user: schemas.User = Depends(Oauth2.get_current_user)):
     note = db.query(models.Note).filter(models.Note.id == id).first()
     if not note:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -34,7 +36,7 @@ def note(id, db: Session = Depends(get_db)):
 
 
 @router.delete("/{id}", status_code=status.HTTP_202_ACCEPTED)
-def delete_note(id, db: Session = Depends(get_db)):
+def delete_note(id, db: Session = Depends(get_db), current_user: schemas.User = Depends(Oauth2.get_current_user)):
     note = db.query(models.Note).filter(models.Note.id ==
                                         id).delete(synchronize_session=False)
     db.commit()
@@ -47,7 +49,7 @@ def delete_note(id, db: Session = Depends(get_db)):
 
 
 @router.put("/{id}", status_code=status.HTTP_202_ACCEPTED)
-def update_note(id, request: schemas.Note, db: Session = Depends(get_db)):
+def update_note(id, request: schemas.Note, db: Session = Depends(get_db), current_user: schemas.User = Depends(Oauth2.get_current_user)):
     note = db.query(models.Note).filter(models.Note.id == id).first()
     if not note:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
