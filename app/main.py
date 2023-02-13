@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from . import schemas, models
 from .database import SessionLocal, engine
-from app.routers import notes, users
+from app.routers import notes, users, auth
 
 
 models.Base.metadata.create_all(bind=engine)
@@ -16,7 +16,7 @@ app = FastAPI(
     #     "email": "tanimolaoluwaseun70@gmail.com",
     # },
 )
-
+app.include_router(auth.router)
 app.include_router(notes.router)
 app.include_router(users.router)
 
