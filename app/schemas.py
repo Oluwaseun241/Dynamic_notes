@@ -33,3 +33,11 @@ class User(BaseModel):
 class Login(BaseModel):
     username: str
     password: str
+
+class ShowLogin(BaseModel):
+    username: str
+    email: str
+    password: str
+
+    class Config():
+        orm_mode = True
