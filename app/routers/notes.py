@@ -1,9 +1,11 @@
+from typing import List
 from fastapi import APIRouter, status, Depends, HTTPException
-from ..database import SessionLocal, engine
+from sqlalchemy.orm import Session
+from .. import schemas, models, database
 
 router = APIRouter()
 
-db = get_db()
+get_db = database.get_db
 
 @router.post("/note", status_code=status.HTTP_201_CREATED, tags=["Notes"])
 def create_notes(request: schemas.Note, db: Session = Depends(get_db)):
