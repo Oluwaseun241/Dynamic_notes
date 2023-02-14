@@ -9,6 +9,8 @@ Dynamic Notes is a simple User CRUD API built with FastAPI and SQLAlchemy. This 
 * Secure password hashing and verification
 
 ## Endpoints
+* /docs - Swagger UI documentation
+
 * /user: create a new user
 * /auth/login: authenticate a user and return a JWT token
 * /notes: manage notes (create, read, update, delete)
