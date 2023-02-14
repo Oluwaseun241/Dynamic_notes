@@ -24,6 +24,3 @@ Dynamic Notes is a simple User CRUD API built with FastAPI and SQLAlchemy. This 
 
 ## Author
 Oluwaseun Tanimola - [GitHub](https://github.com/Oluwaseun241)
-
-## License
-This project is licensed under the MIT License
