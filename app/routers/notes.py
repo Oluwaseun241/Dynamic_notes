@@ -11,7 +11,7 @@ router = APIRouter(
 get_db = database.get_db
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("", status_code=status.HTTP_201_CREATED)
 def create_notes(request: schemas.Note, db: Session = Depends(get_db)):
     new_note = models.Note(title=request.title, body=request.body)
     db.add(new_note)
@@ -20,7 +20,7 @@ def create_notes(request: schemas.Note, db: Session = Depends(get_db)):
     return new_note
 
 
-@router.get("/", status_code=status.HTTP_200_OK, response_model=List[schemas.ShowNote])
+@router.get("", status_code=status.HTTP_200_OK, response_model=List[schemas.ShowNote])
 def show_all(db: Session = Depends(get_db), current_user: schemas.User = Depends(Oauth2.get_current_user)):
     notes = db.query(models.Note).all()
     return notes

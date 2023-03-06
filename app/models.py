@@ -12,7 +12,7 @@ class Note(Base):
     body = Column(String)
     user_id = Column(Integer, ForeignKey("users.id"))
 
-    owner = relationship("User", back_populates="notes")
+    owner = relationship("User", back_populates="notes",  cascade="all, delete")
 
 
 class User(Base):
@@ -24,4 +24,4 @@ class User(Base):
     email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
 
-    notes = relationship("Note", back_populates="owner")
+    notes = relationship("Note", back_populates="owner", cascade="all, delete")
